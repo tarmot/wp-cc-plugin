@@ -1,13 +1,14 @@
 === License ===
-Contributors: mitchoyoshitaka, bmellor
-Author: mitcho (Michael Yoshitaka Erlewine), Brett Mellor
-Author URI: http://ecs.mit.edu/
+Contributors: tatti, mitchoyoshitaka, bmellor
+Author: Tarmo Toikkanen
+Author URI: http://www.creativecommons.fi
 Tags: creative commons, CC, license, copyright, copyleft, attribution, ownership, all rights reserved, some rights reserved, footer, widget
 Requires at least: 3.1
-Tested up to: 3.3
-Stable tag: 0.5
+Tested up to: 3.5.2
+Stable tag: 0.6
 
 The license plugin gives authors the ability to mark their content with a Creative Commons license and to display the license along with the content.  
+This is a fork of License 0.5 by mitcho and Brett Mellor.
 
 == Description ==
 
@@ -16,8 +17,6 @@ The License plugin gives authors the ability to mark their content with a [Creat
 The site default license is the Creative Commons [Attribution-NonCommercial-ShareAlike (CC BY-NC-SA)](http://creativecommons.org/licenses/by-nc-sa/2.0/) license.  Authors can set their own default license using the license settings provided under Personal Options on the edit profile page.  The license can also be set for each individual post using the setting provided in the Publish box while creating a new post.  
 
 Authors can choose how they would like their attribution to be displayed on the site.  The author can attribute the work to their display name or their nickname as defined in their profile options.  Alternatively, the author can attribute the work to the site as defined in the General Settings of the site.  
-
-This plugin is a component of the [MIT Educational Collaboration Space](http://ecs.mit.edu) project.
 
 == Installation ==
 
@@ -39,6 +38,11 @@ Our answer here!
 4. A license is displayed in the footer of a page including a Creative Commons license mark, title of the content, and to whom the license is atributed.
 
 == Changelog ==
+
+= 0.6 =
+* Fork of original License plugin by tatti
+* Fixed several bugs, including deduction of correct license based on site and author defaults
+* Fixed author information in widget to display correct context-specific author information
 
 = 0.5 =
 * Fixed a XSS security vulnerability. props duck_.

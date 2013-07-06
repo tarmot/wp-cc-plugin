@@ -2,9 +2,10 @@
 /*
 Plugin Name: License
 Description: Allows users to specify a Creative Commons license for their content, with tight WordPress integration.
-Version: 0.5
-Author: mitcho (Michael Yoshitaka Erlewine), Brett Mellor
-Author URI: http://ecs.mit.edu
+Basedon License v0.5 by mitcho (Michael Yoshitaka Erlewine), Brett Mellor
+Version: 0.6
+Author: tatti (Tarmo Toikkanen)
+Author URI: http://www.creativecommons.fi
 */
 
 define('LICENSE_PLUGIN_URL', WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)));
@@ -55,7 +56,7 @@ function license_submitbox($userprofile = false) {
 	}
 
 	echo '<span id="license-display"></span>
-		<a href="http://creativecommons.org/choose/?partner=WordPress+License+Plugin&exit_url='.LICENSE_PLUGIN_URL.'licensereturn.php?url=[license_url]%26name=[license_name]%26button=[license_button]%26deed=[deed_url]&jurisdiction=' . __('us', 'license') . '&KeepThis=true&TB_iframe=true&height=500&width=600" title="' . __('Choose a Creative Commons license', 'license') . '" class="thickbox edit-license">' . __('Edit', 'license') . '</a><br>	
+		<a href="http://creativecommons.org/choose/?partner=WordPress+License+Plugin&exit_url='.LICENSE_PLUGIN_URL.'licensereturn.php?url=[license_url]%26name=[license_name]%26button=[license_button]%26deed=[deed_url]&jurisdiction=' . __('', 'license') . '&KeepThis=true&TB_iframe=true&height=500&width=600" title="' . __('Choose a Creative Commons license', 'license') . '" class="thickbox edit-license">' . __('Edit', 'license') . '</a><br>	
 
 		<input type="hidden" name="license_nonce" id="license-nonce" value="'.$nonce.'" />
 		<input type="hidden" value="'.$license['deed'].'" id="hidden-license-deed" name="hidden_license_deed"/>
@@ -97,10 +98,10 @@ function license_get_license($post_id = false) {
 	
 	if (empty($default))
 		$default = array(
-							'deed' => 'http://creativecommons.org/licenses/by-nc-sa/3.0/us/',
-							'image' => 'http://i.creativecommons.org/l/by-nc-sa/3.0/us/88x31.png',
-							'title' => get_bloginfo('url'),
-							'name' => 'Creative Commons Attribution-Noncommercial-Share Alike 3.0 United States License',
+							'deed' => 'http://creativecommons.org/licenses/by-sa/3.0/',
+							'image' => 'http://i.creativecommons.org/l/by-sa/3.0/88x31.png',
+							'title' => get_bloginfo('name'),
+							'name' => 'Creative Commons Attribution-Share Alike 3.0 License',
 							'sitename' => get_bloginfo(),
 							'siteurl' => get_bloginfo('url'),
 							'author' => get_bloginfo()
@@ -109,21 +110,34 @@ function license_get_license($post_id = false) {
 	if (defined('IS_PROFILE_PAGE') && IS_PROFILE_PAGE)
 		return $default;
 	
+	if (is_archive() || is_front_page())
+		return $default;
+
 	global $post;
 	if ($post_id === false)
 		$post_id = $post->ID;
 	$this_post = get_post($post_id);
 	$postdeed = get_post_meta($post_id,'_license_deed',true);
+	$author = get_userdata($this_post->post_author);
+	$authorname = $author->display_name;
 	
 	if (empty($postdeed))
-		return $default;
+		/*return $default;*/
+		return array( 'deed'	=> $default['deed'],'image' => $default['image'], 'name' => $default['name'],
+									'title' => get_the_title($post_id),
+									'sitename' => get_bloginfo(),
+									'author' => $authorname,
+									'permalink' => get_permalink($post_id),
+									'siteurl' => get_bloginfo('url')
+								 );
+
 	else 
 		return array( 'deed'	=> get_post_meta($post_id,'_license_deed',true),
 									'image' => get_post_meta($post_id,'_license_image',true),
 									'title' => get_the_title($post_id),
 									'name' => get_post_meta($post_id,'_license_name',true),
 									'sitename' => get_bloginfo(),
-									'author' => get_the_author($this_post->post_author),
+									'author' => $authorname,
 									'permalink' => get_permalink($post_id),
 									'siteurl' => get_bloginfo('url')
 								 );
@@ -176,7 +190,10 @@ function license_print_license_html() {
 	$license = license_get_license();
 
 	// who authored this post/page?
-	$authID = get_the_author_meta(ID);
+	if (is_singular() && !is_front_page())
+		$authID = get_the_author_meta(ID);
+	else
+		$authID = 1;
 	// how does this author prefer their license attribution to be displayed? (options are: display name, nickname, or sitename)
 	// if preference is not set, display name will be used
 	$usrLicOpt = get_user_option('license',$authID);
@@ -184,15 +201,15 @@ function license_print_license_html() {
 	if ($attribute_pref == 'sitename')
 		$attribute_to = get_bloginfo();
 	else if ($attribute_pref == 'nickname')
-		$attribute_to = get_the_author_meta('nickname');
+		$attribute_to = get_the_author_meta('nickname',$authID);
 	else
-		$attribute_to = get_the_author_meta('display_name');
+		$attribute_to = get_the_author_meta('display_name',$authID);
 
 	$imgstyle = apply_filters('license_img_style', "display:block; float:left; margin:0px 3px 3px 0px;");
 
-	echo '<div class="license-wrap"><a rel="license" href="'.esc_url($license['deed']).'"><img style="' . $imgstyle . '" alt="' . __('Creative Commons License', 'license') . '" src="'.esc_url($license['image']).'" /></a> ';
-	printf(__('<span%s>%s</span> is licensed by <span%s>%s</span> under a <a rel="license" href="%s">%s</a>.', 'license'),
-		' xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Text" property="dc:title" rel="dc:type"',
+	echo '<div class="license-wrap"><a rel="license" href="'.esc_url($license['deed']).'"><img style="' . $imgstyle . '" alt="' . __('Creative Commons License', 'license') . '" src="'.esc_url($license['image']).'" /></a><br /> ';
+	printf(__('<em><span%s>%s</span></em>, jonka tekijä on <span%s>%s</span>, on lisensioitu <a rel="license" href="%s">%s</a> alaisena.', 'license'),
+		' xmlns:dct="http://purl.org/dc/terms/" property="dct:title"',
 		esc_html($license['title']),
 		' xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName"',
 		esc_html($attribute_to),
