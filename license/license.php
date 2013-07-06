@@ -1,8 +1,7 @@
 <?php
 /*
 Plugin Name: License
-Description: Allows users to specify a Creative Commons license for their content, with tight WordPress integration.
-Basedon License v0.5 by mitcho (Michael Yoshitaka Erlewine), Brett Mellor
+Description: Allows users to specify a Creative Commons license for their content, with tight WordPress integration.  Based on License v0.5 by mitcho (Michael Yoshitaka Erlewine), Brett Mellor
 Version: 0.6
 Author: tatti (Tarmo Toikkanen)
 Author URI: http://www.creativecommons.fi
